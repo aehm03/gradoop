@@ -2,19 +2,50 @@ package org.gradoop.flink.algorithms.gelly.jaccardindex;
 
 import org.gradoop.flink.model.GradoopFlinkTestBase;
 import org.gradoop.flink.model.api.epgm.LogicalGraph;
+import org.gradoop.flink.model.api.epgm.LogicalGraphFactory;
+import org.gradoop.flink.model.impl.layouts.gve.GVEGraphLayoutFactory;
 import org.junit.Test;
 
 public class JaccardIndexTest extends GradoopFlinkTestBase {
 
+  @Test
+  public void testEmptyGraph() throws Exception {
+    LogicalGraphFactory logicalGraphFactory = new LogicalGraphFactory(config);
+    logicalGraphFactory.setLayoutFactory(new GVEGraphLayoutFactory());
+    LogicalGraph emptyGraph = logicalGraphFactory.createEmptyGraph();
+
+    LogicalGraph result = emptyGraph.callForGraph(new JaccardIndex("JaccardIndex"));
+    collectAndAssertTrue(emptyGraph.equalsByElementData(result));
+  }
+
+
+  @Test
+  public void testMinimalUndirectedGraph() throws Exception {
+    String minGraph =
+      "" + "(v0:v0) -[:e]-> (v1:v1)" + "(v1)    -[:e]-> (v2:v2)" + "(v1)    -[:e]-> (v0)" +
+        "(v2)    -[:e]-> (v1)";
+
+    String minRes = "(v0) -[:ji {value : 1.0d}]-> (v2) " + "(v2) -[:ji {value : 1.0d}]-> (v0) ";
+
+    LogicalGraph input =
+      getLoaderFromString("input[" + minGraph + "]").getLogicalGraphByVariable("input");
+    LogicalGraph expectedResult =
+      getLoaderFromString("input[" + minGraph + minRes + "]").getLogicalGraphByVariable("input");
+    LogicalGraph result = input.callForGraph(new JaccardIndex("ji"));
+
+    collectAndAssertTrue(result.equalsByElementData(expectedResult));
+  }
+
   /**
-   * Testing the JaccardIndex implementation on a graph that mimics the undirected simple graph
+   * Test the JaccardIndex implementation on a graph that mimics the undirected simple graph
    * from the gelly unit tests.
-   * Undirected Simple Graph from: {@see https://github
+   *
+   * Input Graph from <a href = "https://github
+   * .com/apache/flink/blob/master/flink-libraries/flink-gelly/src/test/java"> AsmTestBase</a>
+   *
+   * Expected Results from <a href = "https://github
    * .com/apache/flink/blob/master/flink-libraries/flink-gelly/src/test/java/org/apache/flink
-   * /graph/asm/AsmTestBase.java}
-   * Expected Results from: {@see https://github
-   * .com/apache/flink/blob/master/flink-libraries/flink-gelly/src/test/java/org/apache/flink
-   * /graph/library/similarity/JaccardIndexTest.java}
+   * /graph/library/similarity/JaccardIndexTest.java"> JaccardIndexTest</a>
    */
   @Test
   public void testUndirectedSimpleGraph() throws Exception {
@@ -69,6 +100,5 @@ public class JaccardIndexTest extends GradoopFlinkTestBase {
     LogicalGraph result = input.callForGraph(new JaccardIndex("JaccardIndex"));
 
     collectAndAssertTrue(expectedResult.equalsByElementData(result));
-
   }
 }

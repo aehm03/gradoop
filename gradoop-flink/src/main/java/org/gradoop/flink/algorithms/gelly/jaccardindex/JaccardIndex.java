@@ -13,7 +13,11 @@ import org.gradoop.flink.model.api.epgm.LogicalGraphFactory;
 
 /**
  * A gradoop operator wrapping {@link org.apache.flink.graph.library.similarity.JaccardIndex}.
- * The Jaccard Similarity or each pair of vertices in the graph with at least one shared neighbor
+ *
+ * The input graph must be a simple, undirected graph containing no duplicate
+ * edges or self-loops.
+ *
+ * The Jaccard Similarity of each pair of vertices in the graph with at least one shared neighbor
  * is represented as a pair of edges between these vertices.
  */
 public class JaccardIndex extends GellyAlgorithm<NullValue, NullValue> {

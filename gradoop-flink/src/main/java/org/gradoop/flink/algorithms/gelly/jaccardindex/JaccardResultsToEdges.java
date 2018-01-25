@@ -8,7 +8,7 @@ import org.gradoop.common.model.impl.pojo.Edge;
 import org.gradoop.common.model.impl.pojo.EdgeFactory;
 
 /**
- * Maps a JaccardIndexResult to mirrored two Edges between the Vertices.
+ * Maps a JaccardIndexResult to a pair of edges between the Vertices.
  */
 public class JaccardResultsToEdges implements
   FlatMapFunction<JaccardIndex.Result<GradoopId>, Edge> {
